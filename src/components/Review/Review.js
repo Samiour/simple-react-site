@@ -4,15 +4,22 @@ import Cart from '../Cart/Cart';
 import ReviewItem from '../ReviewItem/ReviewItem';
 import './Review.css';
 import happyImage from '../../images/giphy.gif';
+import { useHistory } from 'react-router-dom';
 
 const Review = () => {
     const[cart,setCart]=useState([]);
     const[orderPlaced,setOrderPlaced]=useState(false);
-    const handlePlaceOrder=()=>{
-     setCart([]);
-     setOrderPlaced(true);
-     processOrder();
+    const history=useHistory();
+
+    const handleProceedCheckOut=()=>{
+    //  setCart([]);
+    //  setOrderPlaced(true);
+    //  processOrder();
+    
+    history.push('/shipment');
+    
     }
+    
     const removeProduct=(productKey)=>{
         // console.log("removed clicked",productKey);
         const newCart=cart.filter(pd=>pd.key!==productKey);
@@ -24,14 +31,18 @@ const Review = () => {
     const savedCart=getDatabaseCart();
     const productKeys = Object.keys(savedCart);
     
-   const cartProducts=productKeys.map(key=>{
-       const product=fakeData.find(pd=>pd.key===key);
-      product.quantity=savedCart[key];
-       return product;
-   });
-   setCart(cartProducts);
+
+    fetch('http://localhost:5000/productsByKeys',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify(productKeys)
+    })
+    .then(res=>res.json())
+    .then(data=>setCart(data))
   
-    },[])
+    },[]);
    
     let thankyou;
     if(orderPlaced){
@@ -55,7 +66,7 @@ const Review = () => {
 
            <div className="cart-container">
                <Cart cart={cart}>
-                   <button onClick={handlePlaceOrder} className='cart-button'>Place Order</button>
+                   <button onClick={handleProceedCheckOut} className='cart-button'>Proceed CheckOut</button>
                </Cart>
 
            </div>
